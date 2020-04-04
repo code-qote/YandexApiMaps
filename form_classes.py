@@ -4,6 +4,7 @@ from PyQt5.QtGui import *
 from fmain import Ui_fmain
 from consts import *
 import requests
+from functools import partial
 from io import BytesIO
 
 
@@ -12,15 +13,23 @@ class MainForm(QMainWindow, Ui_fmain):
         super().__init__()
         self.setupUi(self)
         self.config()
+    
+    def updateMapType(self, Mtype, map_file):
+        self.mapType = Mtype
+        self.map_file = map_file
+        self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)        
 
     def config(self):
         self.BSearch.clicked.connect(self.start_search)
         self.spn = 0.01
         self.installEventFilter(self)
-        #test
         self.CurrentLattitude = 53.2
         self.CurrentLongitude = 50.15
-        #test
+        self.mapType = 'map'
+        self.map_file = 'map.png'
+        self.BMap.clicked.connect(partial(self.updateMapType, Mtype='map', map_file='map.png'))
+        self.BSat.clicked.connect(partial(self.updateMapType, Mtype='sat', map_file='map.jpg'))
+        self.BSkl.clicked.connect(partial(self.updateMapType, Mtype='sat,skl', map_file='map.jpg'))
         self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
     
     def eventFilter(self, obj, event):
@@ -56,13 +65,13 @@ class MainForm(QMainWindow, Ui_fmain):
     def start_search(self):
         try:
             self.CurrentLongitude = float(self.LELongitude.text())
-        except TypeError:
+        except ValueError:
             self.LELongitude.setText('Error')
             return
 
         try:
             self.CurrentLattitude = float(self.LELattitude.text())
-        except TypeError:
+        except ValueError:
             self.LELattitude.setText('Error')
             return
         
@@ -72,7 +81,7 @@ class MainForm(QMainWindow, Ui_fmain):
         search_params = {
             'll': f'{longitude},{lattitude}',
             'spn': f'{self.spn},{self.spn}',
-            'l': 'map'
+            'l': self.mapType
         }
 
         try:
@@ -80,11 +89,7 @@ class MainForm(QMainWindow, Ui_fmain):
         except:
             return
 
-        map_file = 'map.png'
-        with open(map_file, 'wb') as file:
+        with open(self.map_file, 'wb') as file:
             file.write(response.content)
-        print(self.CurrentLongitude, self.CurrentLattitude)
         
-        self.MAP.setPixmap(QPixmap('map.png'))
-                
-
+        self.MAP.setPixmap(QPixmap(self.map_file))
