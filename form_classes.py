@@ -14,25 +14,40 @@ class MainForm(QMainWindow, Ui_fmain):
         self.config()
 
     def config(self):
-        self.BSearch.clicked.connect(self.search_with_coords)
-        self.spn = '2'
-
-    def search_with_coords(self):
+        self.BSearch.clicked.connect(self.start_search)
+        self.z = 17
+        self.installEventFilter(self)
+    
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageDown:
+            if self.z > 0:
+                self.z -= 1
+                self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude) 
+        elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageUp:
+            if self.z < 17:
+                self.z += 1
+                self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
+        return QWidget.eventFilter(self, obj, event)
+    
+    def start_search(self):
         try:
-            longitude = float(self.LELongitude.text())
+            self.CurrentLongitude = float(self.LELongitude.text())
         except TypeError:
             self.LELongitude.setText('Error')
             return
-        
+
         try:
-            lattitude = float(self.LELattitude.text())
+            self.CurrentLattitude = float(self.LELattitude.text())
         except TypeError:
             self.LELattitude.setText('Error')
             return
+        
+        self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
 
+    def search_with_coords(self, longitude, lattitude):
         search_params = {
             'll': f'{longitude},{lattitude}',
-            'spn': f'{self.spn},{self.spn}',
+            'z': str(self.z),
             'l': 'map',
             'pt': f'{longitude},{lattitude},pm2bll'
         }
@@ -40,7 +55,6 @@ class MainForm(QMainWindow, Ui_fmain):
         try:
             response = requests.get(map_server, params=search_params)
         except:
-            print('f')
             return
 
         map_file = 'map.png'
