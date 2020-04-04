@@ -15,18 +15,42 @@ class MainForm(QMainWindow, Ui_fmain):
 
     def config(self):
         self.BSearch.clicked.connect(self.start_search)
-        self.z = 17
+        self.spn = 0.01
         self.installEventFilter(self)
+        #test
+        self.CurrentLattitude = 53.2
+        self.CurrentLongitude = 50.15
+        #test
+        self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
     
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageDown:
-            if self.z > 0:
-                self.z -= 1
+            if self.spn > 0.0001:
+                self.spn /= 10
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude) 
         elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageUp:
-            if self.z < 17:
-                self.z += 1
+            if self.spn < 50:
+                if self.spn >= 10:
+                    self.spn *= 2
+                else:
+                    self.spn *= 10
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
+        elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Up:
+            if self.CurrentLattitude + self.spn < 90:
+                self.CurrentLattitude += self.spn
+            self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
+        elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Down:
+            if self.CurrentLattitude - self.spn > -90:
+                self.CurrentLattitude -= self.spn
+            self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
+        elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Right:
+            if self.CurrentLongitude + self.spn < 180:
+                self.CurrentLongitude += self.spn
+            self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
+        elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Left:
+            if self.CurrentLongitude - self.spn > -180:
+                self.CurrentLongitude -= self.spn
+            self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
         return QWidget.eventFilter(self, obj, event)
     
     def start_search(self):
@@ -47,9 +71,8 @@ class MainForm(QMainWindow, Ui_fmain):
     def search_with_coords(self, longitude, lattitude):
         search_params = {
             'll': f'{longitude},{lattitude}',
-            'z': str(self.z),
-            'l': 'map',
-            'pt': f'{longitude},{lattitude},pm2bll'
+            'spn': f'{self.spn},{self.spn}',
+            'l': 'map'
         }
 
         try:
@@ -60,6 +83,7 @@ class MainForm(QMainWindow, Ui_fmain):
         map_file = 'map.png'
         with open(map_file, 'wb') as file:
             file.write(response.content)
+        print(self.CurrentLongitude, self.CurrentLattitude)
         
         self.MAP.setPixmap(QPixmap('map.png'))
                 
