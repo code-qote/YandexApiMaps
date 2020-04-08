@@ -8,5 +8,3 @@ if __name__ == '__main__':
     wnd = MainForm()
     wnd.show()
     sys.exit(app.exec())
-
-os.remove('map.png')
