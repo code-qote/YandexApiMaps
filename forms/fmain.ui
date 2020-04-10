@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>813</width>
-    <height>489</height>
+    <width>660</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>210</x>
       <y>0</y>
-      <width>600</width>
+      <width>450</width>
       <height>450</height>
      </rect>
     </property>
@@ -40,24 +40,11 @@
      <string>Введите запрос</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>201</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>*можно ввести координаты или запрос</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="BSearch">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>460</y>
+      <y>420</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -73,7 +60,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>150</y>
+      <y>80</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -89,7 +76,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>180</y>
+      <y>110</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -105,7 +92,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>210</y>
+      <y>140</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -133,24 +120,11 @@
      <enum>Qt::ClickFocus</enum>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>131</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Формат: долгота широта</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="BCancel">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
+      <y>390</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -162,17 +136,20 @@
      <string>Сброс</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="LEAddress">
+   <widget class="QRadioButton" name="RBSearchNearMe">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
-      <width>191</width>
-      <height>20</height>
+      <y>50</y>
+      <width>121</width>
+      <height>17</height>
      </rect>
     </property>
-    <property name="readOnly">
-     <bool>true</bool>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string>Искать около меня</string>
     </property>
    </widget>
   </widget>
