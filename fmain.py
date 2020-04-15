@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_fmain(object):
     def setupUi(self, fmain):
         fmain.setObjectName("fmain")
-        fmain.resize(660, 450)
+        fmain.resize(830, 450)
         self.centralwidget = QtWidgets.QWidget(fmain)
         self.centralwidget.setObjectName("centralwidget")
         self.MAP = QtWidgets.QLabel(self.centralwidget)
@@ -52,9 +52,32 @@ class Ui_fmain(object):
         self.RBSearchNearMe.setGeometry(QtCore.QRect(10, 50, 121, 17))
         self.RBSearchNearMe.setFocusPolicy(QtCore.Qt.NoFocus)
         self.RBSearchNearMe.setObjectName("RBSearchNearMe")
+        self.TWToponyms = QtWidgets.QTabWidget(self.centralwidget)
+        self.TWToponyms.setGeometry(QtCore.QRect(640, 0, 191, 451))
+        self.TWToponyms.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.TWToponyms.setTabPosition(QtWidgets.QTabWidget.West)
+        self.TWToponyms.setTabShape(QtWidgets.QTabWidget.Triangular)
+        self.TWToponyms.setElideMode(QtCore.Qt.ElideLeft)
+        self.TWToponyms.setObjectName("TWToponyms")
+        self.BRoute = QtWidgets.QPushButton(self.centralwidget)
+        self.BRoute.setGeometry(QtCore.QRect(10, 260, 75, 23))
+        self.BRoute.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.BRoute.setObjectName("BRoute")
+        self.LEFinish = QtWidgets.QLineEdit(self.centralwidget)
+        self.LEFinish.setGeometry(QtCore.QRect(10, 230, 191, 20))
+        self.LEFinish.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.LEFinish.setObjectName("LEFinish")
+        self.LEStart = QtWidgets.QLineEdit(self.centralwidget)
+        self.LEStart.setGeometry(QtCore.QRect(10, 200, 191, 20))
+        self.LEStart.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.LEStart.setObjectName("LEStart")
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setGeometry(QtCore.QRect(10, 180, 111, 16))
+        self.label_3.setObjectName("label_3")
         fmain.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(fmain)
+        self.TWToponyms.setCurrentIndex(-1)
         QtCore.QMetaObject.connectSlotsByName(fmain)
 
     def retranslateUi(self, fmain):
@@ -67,6 +90,8 @@ class Ui_fmain(object):
         self.BSkl.setText(_translate("fmain", "Гибрид"))
         self.BCancel.setText(_translate("fmain", "Сброс"))
         self.RBSearchNearMe.setText(_translate("fmain", "Искать около меня"))
+        self.BRoute.setText(_translate("fmain", "Проложить"))
+        self.label_3.setText(_translate("fmain", "Проложить маршрут"))
 
 
 if __name__ == "__main__":
