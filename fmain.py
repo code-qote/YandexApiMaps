@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_fmain(object):
     def setupUi(self, fmain):
         fmain.setObjectName("fmain")
-        fmain.resize(830, 450)
+        fmain.resize(848, 450)
         self.centralwidget = QtWidgets.QWidget(fmain)
         self.centralwidget.setObjectName("centralwidget")
         self.MAP = QtWidgets.QLabel(self.centralwidget)
@@ -53,7 +53,7 @@ class Ui_fmain(object):
         self.RBSearchNearMe.setFocusPolicy(QtCore.Qt.NoFocus)
         self.RBSearchNearMe.setObjectName("RBSearchNearMe")
         self.TWToponyms = QtWidgets.QTabWidget(self.centralwidget)
-        self.TWToponyms.setGeometry(QtCore.QRect(640, 0, 191, 451))
+        self.TWToponyms.setGeometry(QtCore.QRect(660, 0, 191, 451))
         self.TWToponyms.setFocusPolicy(QtCore.Qt.NoFocus)
         self.TWToponyms.setTabPosition(QtWidgets.QTabWidget.West)
         self.TWToponyms.setTabShape(QtWidgets.QTabWidget.Triangular)

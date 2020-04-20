@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
+    <width>848</width>
     <height>450</height>
    </rect>
   </property>
@@ -155,7 +155,7 @@
    <widget class="QTabWidget" name="TWToponyms">
     <property name="geometry">
      <rect>
-      <x>640</x>
+      <x>660</x>
       <y>0</y>
       <width>191</width>
       <height>451</height>

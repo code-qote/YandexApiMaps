@@ -43,7 +43,9 @@ class MainForm(QMainWindow, Ui_fmain):
         self.CurrentToponyms = []
         self.CurrentRoute = ''
         self.tabs = []
-        self.spn = 0.01
+        self.spn_y = 0.0015
+        self.spn_x = 0.0025
+        self.z = 17
         self.CurrentPoints = []
         self.installEventFilter(self)
         self.CurrentLattitude, self.CurrentLongitude = geocoder.ip('me').latlng
@@ -56,15 +58,16 @@ class MainForm(QMainWindow, Ui_fmain):
     
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageDown:
-            if self.spn > 0.0001:
-                self.spn /= 10
+            if self.z < 17:
+                self.z += 1
+                self.spn_x /= 2
+                self.spn_y /= 2
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute) 
         elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageUp:
-            if self.spn < 50:
-                if self.spn >= 10:
-                    self.spn *= 2
-                else:
-                    self.spn *= 10
+            if self.z > 0:
+                self.z -= 1
+                self.spn_x *= 2
+                self.spn_y *= 2
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute)
         elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Up:
             if self.CurrentLattitude + self.spn < 90:
@@ -89,12 +92,13 @@ class MainForm(QMainWindow, Ui_fmain):
                 from haversine import haversine, Unit
                 #spnPpix = self.spn / 450
                 print(f'центр{self.CurrentLattitude},{self.CurrentLongitude}')
-                print(f'право{self.CurrentLattitude + self.spn / 2},{self.CurrentLongitude}')
-                m = haversine((self.CurrentLattitude, self.CurrentLongitude), (self.CurrentLattitude + self.spn / 2, self.CurrentLongitude))
-                m /= 225
-                print(f'расстояние={haversine((self.CurrentLattitude, self.CurrentLongitude), (self.CurrentLattitude, self.CurrentLongitude + self.spn / 2))}')
-                delta_x = (x - 435) * m
-                delta_y = (y - 225) * m
+                print(f'право{self.CurrentLattitude + self.spn_y},{self.CurrentLongitude}')
+                m_y = haversine((self.CurrentLattitude, self.CurrentLongitude), (self.CurrentLattitude + self.spn_y, self.CurrentLongitude)) * 1000
+                m_x = haversine((self.CurrentLattitude, self.CurrentLongitude), (self.CurrentLattitude, self.CurrentLongitude + self.spn_x)) * 1000
+                m_y /= 225
+                m_x /= 225
+                delta_x = (x - 435) * m_x
+                delta_y = (y - 225) * m_y
                 #lattitude = delta_y * spnPpix
                 #longitude = delta_x * spnPpix
                 #print(f'spnH={spnPpix}')
@@ -108,8 +112,8 @@ class MainForm(QMainWindow, Ui_fmain):
                 #print(f'spn={self.spn}')
                 #print('-------------------')
                 r = 6372795
-                print(2 * r * math.asin(math.cos(self.CurrentLattitude* math.pi / 180)*math.sin(self.spn* math.pi / 180 / 4)))
-                print(self.spn)
+                #print(2 * r * math.asin(math.cos(self.CurrentLattitude* math.pi / 180)*math.sin(self.spn* math.pi / 180 / 4)))
+                #print(self.spn)
                 longitude = 2*math.asin(math.sin(delta_x / 2 * r)/math.cos(self.CurrentLattitude)) + self.CurrentLongitude
                 lattitude = 2*math.asin(math.sin(delta_y / 2 * r)) + self.CurrentLattitude
                 self.CurrentLongitude = longitude
@@ -165,13 +169,16 @@ class MainForm(QMainWindow, Ui_fmain):
         self.LELSearch.clearFocus()
         self.LEStart.clearFocus()
         self.LEFinish.clearFocus()
-        print(lattitude, longitude)
         points = [toponym['point'] for toponym in toponyms]
+        #points.append(f'{longitude + self.spn_x},{lattitude},pm2bll')
+        #points.append(f'{longitude - self.spn_x},{lattitude},pm2bll')
+        #points.append(f'{longitude},{lattitude + self.spn_x},pm2bll')
+        #points.append(f'{longitude},{lattitude - self.spn_y},pm2bll')
         if pl is not None:
             points.append(f'{pl.split(",")[0]},{pl.split(",")[1]},pm2al~{pl.split(",")[-2]},{pl.split(",")[-1]},pm2bl')
         search_params = {
             'll': f'{longitude},{lattitude}',
-            'spn': f'{self.spn},{self.spn}',
+            'z': f'{self.z}',
             'l': self.mapType,
             'size': '450,450',
             'pt':'~'.join(points)
@@ -181,14 +188,12 @@ class MainForm(QMainWindow, Ui_fmain):
             new = []
             for i in range(len(pl_)):
                 if (i + 1) % 2 != 0:
-                    print(longitude - 3 * self.spn, float(pl_[i]), longitude + 3 * self.spn)
-                    if longitude - 3 * self.spn <= float(pl_[i]) <= longitude + 3 * self.spn:
+                    if longitude - self.spn_x <= float(pl_[i]) <= longitude + self.spn_x:
                         new.append(pl_[i])
                     else:
                         break
                 else:
-                    print(lattitude - 3 * self.spn, float(pl_[i]), lattitude + 3 * self.spn)
-                    if lattitude - 3 * self.spn <= float(pl_[i]) <= lattitude + 3 * self.spn:
+                    if lattitude - self.spn_y <= float(pl_[i]) <= lattitude + self.spn_y:
                         new.append(pl_[i])
                     else:
                         break
@@ -197,6 +202,7 @@ class MainForm(QMainWindow, Ui_fmain):
 
         try:
             response = requests.get(map_server, params=search_params)
+            print(response.request.url)
 
             with open(self.map_file, 'wb') as file:
                 file.write(response.content)
