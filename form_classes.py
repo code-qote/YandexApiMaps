@@ -70,20 +70,20 @@ class MainForm(QMainWindow, Ui_fmain):
                 self.spn_y *= 2
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute)
         elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Up:
-            if self.CurrentLattitude + self.spn < 90:
-                self.CurrentLattitude += self.spn
+            if self.CurrentLattitude + self.spn_y < 90:
+                self.CurrentLattitude += self.spn_y
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute) 
         elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Down:
-            if self.CurrentLattitude - self.spn > -90:
-                self.CurrentLattitude -= self.spn
+            if self.CurrentLattitude - self.spn_y > -90:
+                self.CurrentLattitude -= self.spn_y
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute) 
         elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Right:
-            if self.CurrentLongitude + self.spn < 180:
-                self.CurrentLongitude += self.spn
+            if self.CurrentLongitude + self.spn_x < 180:
+                self.CurrentLongitude += self.spn_x
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute) 
         elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Left:
-            if self.CurrentLongitude - self.spn > -180:
-                self.CurrentLongitude -= self.spn
+            if self.CurrentLongitude - self.spn_x > -180:
+                self.CurrentLongitude -= self.spn_x
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute)
         elif event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
             x, y = event.pos().x(), event.pos().y()
@@ -186,22 +186,19 @@ class MainForm(QMainWindow, Ui_fmain):
         if pl is not None:
             pl_ = pl.split(',')
             new = []
-            for i in range(len(pl_)):
-                if (i + 1) % 2 != 0:
-                    if longitude - self.spn_x <= float(pl_[i]) <= longitude + self.spn_x:
-                        new.append(pl_[i])
-                    else:
-                        break
-                else:
-                    if lattitude - self.spn_y <= float(pl_[i]) <= lattitude + self.spn_y:
-                        new.append(pl_[i])
-                    else:
-                        break
+            k = 0
+            for i in range(len(pl_) - 1):
+                if ((longitude - 2 * self.spn_x <= float(pl_[i]) <= longitude + 2 * self.spn_x) or (lattitude - 2 * self.spn_y <= float(pl_[i + 1]) <= lattitude + 2 * self.spn_y)) and k < 100:
+                    new.append(pl_[i])
+                    new.append(pl_[i + 1])
+                    k += 1
             if new:
+                print(len(new))
                 search_params['pl'] = ','.join(new)
 
         try:
             response = requests.get(map_server, params=search_params)
+            print(response)
             print(response.request.url)
 
             with open(self.map_file, 'wb') as file:
