@@ -127,6 +127,20 @@ class MainForm(QMainWindow, Ui_fmain):
         response = requests.get(route_server + f'{start[0]},{start[1]};{finish[0]},{finish[1]}', params=route_params)
         json_response = response.json()
         coordinates = json_response['routes'][0]['geometry']['coordinates']
+        distance = round(json_response['routes'][0]['legs'][0]['distance'] / 1000, 1)
+        duration = round(json_response['routes'][0]['legs'][0]['duration'])
+        hours = duration // 3600
+        minutes = (duration % 3600) // 60
+
+        self.TWToponyms.clear()
+        tab = QWidget()
+        textEdit = QTextEdit(tab)
+        textEdit.setGeometry(QRect(0, -10, 171, 461))
+        textEdit.setReadOnly(True)
+        text = f'\nРасстояние: {distance} км\nВремя: {hours} ч {minutes} мин'
+        textEdit.setPlainText(text)
+        self.TWToponyms.addTab(tab, '')
+
         pl = ''
         for coord in coordinates:
             pl += f'{coord[0]},{coord[1]},'
