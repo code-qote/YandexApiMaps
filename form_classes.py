@@ -25,7 +25,8 @@ class MainForm(QMainWindow, Ui_fmain):
         self.isPoint = False
         self.CurrentPoint = None
         self.LELSearch.clear()
-        self.LEAddress.clear()
+        self.TWToponyms.clear()
+        self.RBSearchNearMe.setChecked(False)
         self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.isPoint)
     
     def updateSearch(self): 
@@ -46,6 +47,7 @@ class MainForm(QMainWindow, Ui_fmain):
         self.spn_y = 0.0015
         self.spn_x = 0.0025
         self.z = 17
+        self.lock_z = False
         self.CurrentPoints = []
         self.installEventFilter(self)
         self.CurrentLattitude, self.CurrentLongitude = geocoder.ip('me').latlng
@@ -57,13 +59,13 @@ class MainForm(QMainWindow, Ui_fmain):
         self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude)
     
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageDown:
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageDown and not self.lock_z:
             if self.z < 17:
                 self.z += 1
                 self.spn_x /= 2
                 self.spn_y /= 2
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute) 
-        elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageUp:
+        elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_PageUp and not self.lock_z:
             if self.z > 0:
                 self.z -= 1
                 self.spn_x *= 2
@@ -85,40 +87,6 @@ class MainForm(QMainWindow, Ui_fmain):
             if self.CurrentLongitude - self.spn_x > -180:
                 self.CurrentLongitude -= self.spn_x
                 self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms, self.CurrentRoute)
-        elif event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
-            x, y = event.pos().x(), event.pos().y()
-            if x >= 210 and x < 670:
-                import math
-                from haversine import haversine, Unit
-                #spnPpix = self.spn / 450
-                print(f'центр{self.CurrentLattitude},{self.CurrentLongitude}')
-                print(f'право{self.CurrentLattitude + self.spn_y},{self.CurrentLongitude}')
-                m_y = haversine((self.CurrentLattitude, self.CurrentLongitude), (self.CurrentLattitude + self.spn_y, self.CurrentLongitude)) * 1000
-                m_x = haversine((self.CurrentLattitude, self.CurrentLongitude), (self.CurrentLattitude, self.CurrentLongitude + self.spn_x)) * 1000
-                m_y /= 225
-                m_x /= 225
-                delta_x = (x - 435) * m_x
-                delta_y = (y - 225) * m_y
-                #lattitude = delta_y * spnPpix
-                #longitude = delta_x * spnPpix
-                #print(f'spnH={spnPpix}')
-                #print(f'spnW={spnPpix}')
-                #print(f'delta_x={delta_x}')
-                #print(f'delta_y={delta_y}')
-                #print(f'lattitude={lattitude}')
-                #print(f'longitude={longitude}')
-                ##print(f'CurLong={self.CurrentLongitude}')
-                #print(f'CurLat={self.CurrentLattitude}')
-                #print(f'spn={self.spn}')
-                #print('-------------------')
-                r = 6372795
-                #print(2 * r * math.asin(math.cos(self.CurrentLattitude* math.pi / 180)*math.sin(self.spn* math.pi / 180 / 4)))
-                #print(self.spn)
-                longitude = 2*math.asin(math.sin(delta_x / 2 * r)/math.cos(self.CurrentLattitude)) + self.CurrentLongitude
-                lattitude = 2*math.asin(math.sin(delta_y / 2 * r)) + self.CurrentLattitude
-                self.CurrentLongitude = longitude
-                self.CurrentLattitude = lattitude
-                self.search_with_organisation(f'{self.CurrentLongitude},{self.CurrentLattitude}', True)
         return QWidget.eventFilter(self, obj, event)
 
     def start_search(self):
@@ -162,6 +130,8 @@ class MainForm(QMainWindow, Ui_fmain):
         pl = ''
         for coord in coordinates:
             pl += f'{coord[0]},{coord[1]},'
+        self.lock_z = True
+        self.z = 16
         self.search_with_coords(start[0], start[1], [], pl[:-1])
         
 
@@ -169,11 +139,10 @@ class MainForm(QMainWindow, Ui_fmain):
         self.LELSearch.clearFocus()
         self.LEStart.clearFocus()
         self.LEFinish.clearFocus()
-        points = [toponym['point'] for toponym in toponyms]
-        #points.append(f'{longitude + self.spn_x},{lattitude},pm2bll')
-        #points.append(f'{longitude - self.spn_x},{lattitude},pm2bll')
-        #points.append(f'{longitude},{lattitude + self.spn_x},pm2bll')
-        #points.append(f'{longitude},{lattitude - self.spn_y},pm2bll')
+        if toponyms is not False:
+            points = [toponym['point'] for toponym in toponyms]
+        else:
+            points = []
         if pl is not None:
             points.append(f'{pl.split(",")[0]},{pl.split(",")[1]},pm2al~{pl.split(",")[-2]},{pl.split(",")[-1]},pm2bl')
         search_params = {
@@ -188,18 +157,15 @@ class MainForm(QMainWindow, Ui_fmain):
             new = []
             k = 0
             for i in range(len(pl_) - 1):
-                if ((longitude - 2 * self.spn_x <= float(pl_[i]) <= longitude + 2 * self.spn_x) or (lattitude - 2 * self.spn_y <= float(pl_[i + 1]) <= lattitude + 2 * self.spn_y)) and k < 100:
+                if ((longitude - 3 * self.spn_x <= float(pl_[i]) <= longitude + 3 * self.spn_x) or (lattitude - 3 * self.spn_y <= float(pl_[i + 1]) <= lattitude + 3 * self.spn_y)) and k < 100:
                     new.append(pl_[i])
                     new.append(pl_[i + 1])
                     k += 1
             if new:
-                print(len(new))
                 search_params['pl'] = ','.join(new)
 
         try:
             response = requests.get(map_server, params=search_params)
-            print(response)
-            print(response.request.url)
 
             with open(self.map_file, 'wb') as file:
                 file.write(response.content)
@@ -289,7 +255,9 @@ class MainForm(QMainWindow, Ui_fmain):
                 textEdit.setPlainText(text)
                 self.TWToponyms.addTab(tab, '')
                 i += 1
-            
+            self.lock_z = False
+            self.LEStart.clear()
+            self.LEFinish.clear()
             self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.CurrentToponyms)
             return True
         except:
