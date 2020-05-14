@@ -146,6 +146,8 @@ class MainForm(QMainWindow, Ui_fmain):
             pl += f'{coord[0]},{coord[1]},'
         self.lock_z = True
         self.z = 16
+        self.spn_y = 0.003
+        self.spn_x = 0.005
         self.search_with_coords(start[0], start[1], [], pl[:-1])
         
 
