@@ -26,6 +26,8 @@ class MainForm(QMainWindow, Ui_fmain):
         self.CurrentPoint = None
         self.LELSearch.clear()
         self.TWToponyms.clear()
+        self.LEStart.clear()
+        self.LEFinish.clear()
         self.RBSearchNearMe.setChecked(False)
         self.search_with_coords(self.CurrentLongitude, self.CurrentLattitude, self.isPoint)
     
@@ -100,6 +102,8 @@ class MainForm(QMainWindow, Ui_fmain):
         start_coords = self.get_coords(start)
         finish_coords = self.get_coords(finish)
         if start_coords and finish_coords:
+            self.LELSearch.clear()
+            self.RBSearchNearMe.setChecked(False)
             self.search_route(start_coords, finish_coords)
     
     def get_coords(self, toponym_to_find):
