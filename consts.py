@@ -1,7 +1,7 @@
-geocoder_apikey = '40d1649f-0493-4b70-98ba-98533de7710b'
+geocoder_apikey = 'YOUR GEOCODER API KEY'
 geocoder_server = 'http://geocode-maps.yandex.ru/1.x/'
 
-search_apikey = 'dda3ddba-c9ea-4ead-9010-f43fbc15c6e3'
+search_apikey = 'YOUR SEARCH API KEY'
 search_server = 'https://search-maps.yandex.ru/v1/'
 
 map_server = 'http://static-maps.yandex.ru/1.x/'
